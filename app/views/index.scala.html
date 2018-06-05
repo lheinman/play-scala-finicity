@@ -1,0 +1,49 @@
+@(person: Form[CreatePersonForm])(implicit request: MessagesRequestHeader)
+
+@import helper._
+
+@request.flash.get("success").map { key =>
+   @request.messages(key)
+}
+
+@main("Welcome to Play") {
+  @form(routes.PersonController.addPerson()) {
+  <table>
+  	<tr>
+		<td>@inputText(person("username").copy(value=Some("dheinman")), 'size -> 30)</td>
+		<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		<td>@inputText(person("address").copy(value=Some("4541 Mello")))</td>
+		<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		<td>@inputText(person("month").copy(value=Some("01")))</td>
+		<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		<td>@inputText(person("phone").copy(value=Some("949 123 4567")))</td>
+	</tr>
+	<tr>
+		<td>@inputText(person("firstName").copy(value=Some("David")), 'size -> 30)</td>
+		<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		<td>@inputText(person("city").copy(value=Some("Irvine")))</td>
+		<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		<td>@inputText(person("dayOfMonth").copy(value=Some("21")))</td>
+		<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		<td>@inputText(person("ssn").copy(value=Some("123456789")))</td>
+	</tr>
+	<tr>
+		<td>@inputText(person("lastName").copy(value=Some("Heinman")), 'size -> 30)</td>
+		<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		<td>@inputText(person("state").copy(value=Some("CA")))</td>
+		<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		<td>@inputText(person("year").copy(value=Some("1985")))</td>
+	</tr>
+	<tr>
+		<td>@inputText(person("emailAddress").copy(value=Some("dheinman@loandepot.com")), 'size -> 30)</td>
+		<td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+		<td>@inputText(person("zip").copy(value=Some("92612")))</td>
+	</tr>
+</table>
+		@CSRF.formField
+
+		<div class="buttons">
+			<input type="submit" value="Add Person"/>
+		</div>
+	}
+}

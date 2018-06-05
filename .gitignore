@@ -1,0 +1,13 @@
+bin
+*gradle*
+logs
+project
+target
+.cache-main
+/.g8
+/.idea
+/.idea_modules
+/.classpath
+/.project
+/.settings
+/RUNNING_PID
