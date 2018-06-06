@@ -106,15 +106,13 @@ class PersonController @Inject()(
     * A REST endpoint that gets the last borrower as JSON.
     */
   def getLastPerson: Action[AnyContent] = Action.async { implicit request =>
-    pRepo.last().map { person =>
-      Ok(Json.toJson(person))
-    }
+    pRepo.last().map { person => Ok(Json.toJson(person)) }
   }
 
   /**
     * A REST endpoint that gets the last borrower as JSON.
     */
-  def patchCustomer: Action[JsValue] = Action(parse.json).async { implicit request =>
+  def patchCustomer: Action[AnyContent] = Action.async { implicit request =>
     Future{
       Ok(Await.result(customerService.patchCustomer, Duration.Inf))
     }

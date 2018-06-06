@@ -226,18 +226,26 @@ class PersonRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(impl
   }
 
   /**
+    * List the first borrower without customer.
+    */
+  def firstNoCustomer(): Future[Option[Person]] = db.run {
+//    borrowers.filter(_.id === 1L).result.headOption
+    borrowers.sortBy(_.customer.nullsFirst).result.headOption
+  }
+
+  /**
     * List the last borrower in the database.
     */
   def last(): Future[Option[Person]] = db.run {
-//    borrowers.filter(_.id === 1L).result.headOption
+    //    borrowers.filter(_.id === 1L).result.headOption
     borrowers.sortBy(_.id.desc).result.headOption
   }
 
   /**
     * Patch the borrower with customer ID.
     */
-  def patchCustomer(id: Long, customer: String, time: Long): Future[Int] = db.run {
-    borrowers.filter(_.id === id).map(b => (b.customer, b.customerTime)).update(Some(customer), Some(time))
+  def patchCustomer(username: String, customer: String, time: Long): Future[Int] = db.run {
+    borrowers.filter(_.username === username).map(b => (b.customer, b.customerTime)).update(Some(customer), Some(time))
   }
 
   /**
