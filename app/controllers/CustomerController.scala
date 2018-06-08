@@ -12,6 +12,12 @@ class CustomerController @Inject()(
                                     cc: MessagesControllerComponents)(implicit ec: ExecutionContext)
   extends MessagesAbstractController(cc) {
 
+  def postCustomer: Action[AnyContent] = Action.async { implicit request =>
+    Future{
+      Ok(Await.result(customerService.postCustomer, Duration.Inf))
+    }
+  }
+
   def patchCustomers: Action[AnyContent] = Action.async { implicit request =>
     Future{
       Ok(Await.result(customerService.patchCustomers, Duration.Inf))

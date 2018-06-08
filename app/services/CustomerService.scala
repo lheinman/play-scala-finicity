@@ -15,58 +15,60 @@ class CustomerService @Inject() (
                                   tService: TokenService,
                                   ws: WSClient)(implicit ec: ExecutionContext) {
 
-  def patchCustomer: Future[String]  = {
+  def postCustomer: Future[String] = {
     val request: WSRequest = ws
       .url(url = "https://api.finicity.com/aggregation/v1/customers/testing")
-      .addHttpHeaders("Finicity-App-Key" -> sys.env("FINICITY_APP_KEY"))
-      .addHttpHeaders("Finicity-App-Token" -> Await.result(tService.getToken, Duration.Inf))
-      .addHttpHeaders("Accept" -> "application/json")
+      .addHttpHeaders(hdrs = "Finicity-App-Key" -> sys.env("FINICITY_APP_KEY"))
+      .addHttpHeaders(hdrs = "Finicity-App-Token" -> Await.result(tService.getToken, Duration.Inf))
+      .addHttpHeaders(hdrs = "Accept" -> "application/json")
 
     val borrower = Await.result(pRepo.firstNoCustomer(), Duration.Inf).get
-    val data = Json.obj(
-      fields = "username" -> borrower.username,
+    val data = Json.obj(fields =
+      "username" -> borrower.username,
       "firstName" -> borrower.firstName,
       "lastName" -> borrower.lastName)
     request.post(data).map { response =>
-      var out = s"${response.status}: ${response.body}"
       if (response.status == 201) {
         Json.parse(response.body).validate[Customer].map {
           case customer => {
             pRepo.patchCustomer(borrower.username, customer.id, customer.createdDate.toLong)
-            out = customer.username
+            customer.username
           }
-        }
+        }.getOrElse("Json.parse error")
+      } else {
+        Logger.debug(message = s"${response.status}: ${response.body}")
+        s"${response.status}: ${response.body}"
       }
-      out
     }.recover {
       case e: Exception => e.getMessage
     }
   }
 
-  def patchCustomers: Future[String]  = {
+  def patchCustomers: Future[String] = {
     val finicityRequest: WSRequest = ws
       .url(url = "https://api.finicity.com/aggregation/v1/customers")
-      .addHttpHeaders("Finicity-App-Key" -> sys.env("FINICITY_APP_KEY"))
-      .addHttpHeaders("Finicity-App-Token" -> Await.result(tService.getToken, Duration.Inf))
-      .addHttpHeaders("Accept" -> "application/json")
+      .addHttpHeaders(hdrs = "Finicity-App-Key" -> sys.env("FINICITY_APP_KEY"))
+      .addHttpHeaders(hdrs = "Finicity-App-Token" -> Await.result(tService.getToken, Duration.Inf))
+      .addHttpHeaders(hdrs = "Accept" -> "application/json")
 
     finicityRequest.get().map {
       response => {
-        var out = "users: "
-        Json.parse(response.body).validate[Customers].map{
-          case customers => {
-            customers.customers.foreach(customer => {
-              out += (if (!Await.result(pRepo.isBorrowerByUsername(customer.username), Duration.Inf)) {
-                Await.result(pRepo.addNewCustomer(customer), Duration.Inf)
-                customer.id + ","
-              } else {
-                Await.result(pRepo.patchCustomer(customer.username, customer.id, customer.createdDate.toLong), Duration.Inf)
-                customer.username + ","
-              })
-            })
-          }
+        if (response.status == 200) {
+          Json.parse(response.body).validate[Customers].map {
+            case customers => {
+              customers.customers.foreach(customer => {
+                if (!Await.result(pRepo.isBorrowerByUsername(customer.username), Duration.Inf)) {
+                  Await.result(pRepo.addNewCustomer(customer), Duration.Inf)
+                } else {
+                  Await.result(pRepo.patchCustomer(customer.username, customer.id, customer.createdDate.toLong), Duration.Inf)
+                }
+              }).toString
+            }
+          }.getOrElse("Json.parse error")
+        } else {
+          Logger.debug(message = s"${response.status}: ${response.body}")
+          s"${response.status}: ${response.body}"
         }
-        out
       }
     }
   }

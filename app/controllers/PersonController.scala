@@ -4,20 +4,15 @@ import javax.inject._
 import models._
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.libs.json._
 import play.api.mvc._
 import play.api.Logger
-import play.api.libs.ws._
 import play.api.libs.json.Json
-import play.api.libs.ws.JsonBodyWritables._
-import services.CustomerService
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, ExecutionContext, Future}
 
 class PersonController @Inject()(
                                   pRepo: PersonRepository,
-                                  customerService: CustomerService,
                                   cc: MessagesControllerComponents)(implicit ec: ExecutionContext)
   extends MessagesAbstractController(cc) {
 
@@ -109,13 +104,8 @@ class PersonController @Inject()(
     pRepo.last().map { person => Ok(Json.toJson(person)) }
   }
 
-  /**
-    * A REST endpoint that gets the last borrower as JSON.
-    */
-  def patchCustomer: Action[AnyContent] = Action.async { implicit request =>
-    Future{
-      Ok(Await.result(customerService.patchCustomer, Duration.Inf))
-    }
+  def patchPerson: Action[AnyContent] = Action.async { implicit request =>
+    pRepo.patchPerson().map { person => Ok(Json.toJson(person)) }
   }
 }
 

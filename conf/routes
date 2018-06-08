@@ -4,11 +4,13 @@
 # ~~~~
 
 # The controller managing customers
+POST    /customer                   controllers.CustomerController.postCustomer
 PATCH   /customers                  controllers.CustomerController.patchCustomers
 
 # The controller managing customers
 PATCH   /consumer/:customer         controllers.ConsumerController.patchConsumerByCustomer(customer: String)
 PATCH   /consumers                  controllers.ConsumerController.patchConsumers
+POST    /consumer                   controllers.ConsumerController.postConsumer
 
 # The controller managing reports
 PATCH   /report/:customer          controllers.ReportController.patchReportsByCustomer(customer: String)
@@ -17,9 +19,9 @@ PATCH   /reports                   controllers.ReportController.patchReports
 # The controller showing a borrower page
 GET     /                           controllers.PersonController.index
 POST    /person                     controllers.PersonController.addPerson
-PATCH   /person                     controllers.PersonController.patchCustomer
 GET     /persons                    controllers.PersonController.getPersons
 GET     /person                     controllers.PersonController.getLastPerson
+PATCH     /person                   controllers.PersonController.patchPerson
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)

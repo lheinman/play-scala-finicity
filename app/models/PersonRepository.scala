@@ -234,11 +234,46 @@ class PersonRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(impl
   }
 
   /**
+    * List the first borrower without customer.
+    */
+  def firstNoConsumer(): Future[Option[Person]] = db.run {
+    //    borrowers.filter(_.id === 1L).result.headOption
+    borrowers.sortBy(_.consumer.nullsFirst).result.headOption
+  }
+
+  /**
     * List the last borrower in the database.
     */
   def last(): Future[Option[Person]] = db.run {
     //    borrowers.filter(_.id === 1L).result.headOption
     borrowers.sortBy(_.id.desc).result.headOption
+  }
+
+  /**
+    * Patch the borrower with customer ID.
+    */
+  def patchPerson(): Future[Int] = db.run {
+    borrowers.filter(_.username like "aar%").map(b => (
+      b.month,
+      b.dayOfMonth,
+      b.year,
+      b.emailAddress,
+      b.address,
+      b.city,
+      b.state,
+      b.zip,
+      b.phone,
+      b.ssn)).update(
+      Some("07"): Option[String],
+      Some("03"): Option[String],
+      Some("1972"): Option[String],
+      Some("mike.spinnet@loandepot.com"): Option[String],
+      Some("Some address"): Option[String],
+      Some("Some city"): Option[String],
+      Some("UT"): Option[String],
+      Some( "84109"): Option[String],
+      Some("888-888-8888"): Option[String],
+      Some("555555555"): Option[String])
   }
 
   /**
@@ -251,8 +286,8 @@ class PersonRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(impl
   /**
     * Patch the borrower with customer ID.
     */
-  def patchConsumer(customer: String, consumer: String, time: Long): Future[Int] = db.run {
-    borrowers.filter(_.customer === customer).map(b => (b.consumer, b.consumerTime)).update(Some(consumer), Some(time))
+  def patchConsumer(username: String, consumer: String, time: Long): Future[Int] = db.run {
+    borrowers.filter(_.username === username).map(b => (b.consumer, b.consumerTime)).update(Some(consumer), Some(time))
   }
 
   /**

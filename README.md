@@ -1,5 +1,5 @@
 #This is the Finicity "In Band" Connect Scala client
-It allows to retrieve customers, consumers and last reports from your Finicity test account
+It allows to retrieve customers, consumers and first reports from your Finicity test account
 
 ##Installation instructions
 * Install MySQL
