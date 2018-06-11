@@ -12,11 +12,19 @@ class ReportController @Inject()(
                                   cc: MessagesControllerComponents)(implicit ec: ExecutionContext)
   extends MessagesAbstractController(cc) {
 
+  def patchReportByCustomer(customer: String, reportId: String): Action[AnyContent] = Action.async { implicit request =>
+    Future{
+      val report = Await.result(reportService.patchReportByCustomer(customer, reportId), Duration.Inf)
+      if (report != None) Ok(report.get.id)
+      else Ok("No such report")
+    }
+  }
+
   def patchReportsByCustomer(customer: String): Action[AnyContent] = Action.async { implicit request =>
     Future{
       val report = Await.result(reportService.patchReportsByCustomer(customer), Duration.Inf)
       if (report != None) Ok(report.get.id)
-      else Ok("No such report")
+      else Ok("No reports")
     }
   }
 

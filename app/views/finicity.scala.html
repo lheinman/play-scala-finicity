@@ -1,0 +1,18 @@
+@(finicity: Form[GetFinicityConnectForm])(implicit request: MessagesRequestHeader)
+
+@import helper._
+
+@request.flash.get("success").map { key =>
+   @request.messages(key)
+}
+
+@main("Finicity Connect") {
+  @form(routes.FinicityController.postFinicityConnect()) {
+		@inputText(finicity("id").copy(value=Some("1")), 'size -> 5)
+		@CSRF.formField
+
+		<div class="buttons">
+			<input type="submit" value="Get Finicity Connect"/>
+		</div>
+	}
+}

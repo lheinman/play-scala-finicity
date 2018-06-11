@@ -1,0 +1,31 @@
+@(finicityConnectUrl: String)
+
+@import helper._
+
+<!DOCTYPE html>
+<html lang="en">
+    <body>
+        <script src="https://connect.finicity.com/assets/sdk/finicity-connect.min.js"></script>
+        <script>
+            @*window.onload = window.finicityConnect.connectIFrame("https://connect.finicity.com?consumerId=1c536340515c81d06a14503049ab8da9&customerId=21977674...", {*@
+            window.onload = window.finicityConnect.connectIFrame(@finicityConnectUrl, {
+                success: function (data) {
+                    if (data.reportId) {
+                        console.log("Yay! We got reportId", data.reportId);
+                    } else {
+                        console.log('The user finished, but added no accounts, so no report id exists');
+                    }
+                },
+                cancel: function () {
+                    console.log('The user cancelled the iframe');
+                },
+                error: function (err) {
+                    console.error('Some runtime error was generated during Finicity Connect', err);
+                },
+                loaded: function () {
+                    console.log('This gets called only once after the iframe has finished loading');
+                }
+            });
+        </script>
+    </body>
+</html>

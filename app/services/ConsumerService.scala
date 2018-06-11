@@ -56,13 +56,13 @@ class ConsumerService @Inject() (
   }
 
   def patchConsumerByCustomer(customer: String): Future[Option[Consumer]]  = {
-    val finicityRequest: WSRequest = ws
+    val request: WSRequest = ws
       .url(url = s"https://api.finicity.com/decisioning/v1/customers/$customer/consumer")
       .addHttpHeaders(hdrs = "Finicity-App-Key" -> sys.env("FINICITY_APP_KEY"))
       .addHttpHeaders(hdrs = "Finicity-App-Token" -> Await.result(tService.getToken, Duration.Inf))
       .addHttpHeaders(hdrs = "Accept" -> "application/json")
 
-    finicityRequest.get().map {
+    request.get().map {
       response => {
         if (response.status == 200) {
           Json.parse(response.body).validate[Consumer].map{
@@ -82,13 +82,13 @@ class ConsumerService @Inject() (
   }
 
   def patchConsumers: Future[String]  = {
-    val finicityRequest: WSRequest = ws
+    val request: WSRequest = ws
       .url(url = "https://api.finicity.com/aggregation/v1/customers")
       .addHttpHeaders(hdrs = "Finicity-App-Key" -> sys.env("FINICITY_APP_KEY"))
       .addHttpHeaders(hdrs = "Finicity-App-Token" -> Await.result(tService.getToken, Duration.Inf))
       .addHttpHeaders(hdrs = "Accept" -> "application/json")
 
-    finicityRequest.get().map {
+    request.get().map {
       response => {
         if (response.status == 200) {
           Json.parse(response.body).validate[Customers].map{

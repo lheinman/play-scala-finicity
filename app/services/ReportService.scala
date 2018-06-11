@@ -16,14 +16,40 @@ class ReportService @Inject() (
                                 customerService: CustomerService,
                                 ws: WSClient)(implicit ec: ExecutionContext) {
 
+  def patchReportByCustomer(customer: String, report: String): Future[Option[Report]]  = {
+    val request: WSRequest = ws
+      .url(url = s"https://api.finicity.com/decisioning/v1/customers/$customer/reports/$report")
+      .addHttpHeaders(hdrs = "Finicity-App-Key" -> sys.env("FINICITY_APP_KEY"))
+      .addHttpHeaders(hdrs = "Finicity-App-Token" -> Await.result(tService.getToken, Duration.Inf))
+      .addHttpHeaders(hdrs = "Accept" -> "application/json")
+
+    request.get().map {
+      response => {
+        if (response.status == 200) {
+          Json.parse(response.body).validate[Report].map{
+            case report => {
+                if (!Await.result(pRepo.isBorrowerByReport(report.id), Duration.Inf)) {
+                  Await.result(pRepo.patchReport(customer, report.id, report.createdDate), Duration.Inf)
+                  Some(report)
+                } else None
+            }
+          }.getOrElse(None)
+        } else {
+          Logger.debug(message = s"${response.status}: ${response.body}")
+          None
+        }
+      }
+    }
+  }
+
   def patchReportsByCustomer(customer: String): Future[Option[Report]]  = {
-    val finicityRequest: WSRequest = ws
+    val request: WSRequest = ws
       .url(url = s"https://api.finicity.com/decisioning/v1/customers/$customer/reports")
       .addHttpHeaders(hdrs = "Finicity-App-Key" -> sys.env("FINICITY_APP_KEY"))
       .addHttpHeaders(hdrs = "Finicity-App-Token" -> Await.result(tService.getToken, Duration.Inf))
       .addHttpHeaders(hdrs = "Accept" -> "application/json")
 
-    finicityRequest.get().map {
+    request.get().map {
       response => {
         if (response.status == 200) {
           Json.parse(response.body).validate[Reports].map{
@@ -45,13 +71,13 @@ class ReportService @Inject() (
   }
 
   def patchReports: Future[String]  = {
-    val finicityRequest: WSRequest = ws
+    val request: WSRequest = ws
       .url(url = "https://api.finicity.com/aggregation/v1/customers")
       .addHttpHeaders(hdrs = "Finicity-App-Key" -> sys.env("FINICITY_APP_KEY"))
       .addHttpHeaders(hdrs = "Finicity-App-Token" -> Await.result(tService.getToken, Duration.Inf))
       .addHttpHeaders(hdrs = "Accept" -> "application/json")
 
-    finicityRequest.get().map {
+    request.get().map {
       response => {
         if (response.status == 200) {
           Json.parse(response.body).validate[Customers].map{

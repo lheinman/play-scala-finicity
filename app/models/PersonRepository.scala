@@ -229,7 +229,6 @@ class PersonRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(impl
     * List the first borrower without customer.
     */
   def firstNoCustomer(): Future[Option[Person]] = db.run {
-//    borrowers.filter(_.id === 1L).result.headOption
     borrowers.sortBy(_.customer.nullsFirst).result.headOption
   }
 
@@ -237,8 +236,14 @@ class PersonRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(impl
     * List the first borrower without customer.
     */
   def firstNoConsumer(): Future[Option[Person]] = db.run {
-    //    borrowers.filter(_.id === 1L).result.headOption
     borrowers.sortBy(_.consumer.nullsFirst).result.headOption
+  }
+
+  /**
+    * List the first borrower without customer.
+    */
+  def firstNoReport(): Future[Option[Person]] = db.run {
+    borrowers.sortBy(_.report.nullsLast).result.headOption
   }
 
   /**

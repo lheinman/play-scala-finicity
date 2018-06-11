@@ -6,7 +6,7 @@
    @request.messages(key)
 }
 
-@main("Welcome to Play") {
+@main("New Borrower") {
   @form(routes.PersonController.addPerson()) {
   <table>
   	<tr>
@@ -43,7 +43,7 @@
 		@CSRF.formField
 
 		<div class="buttons">
-			<input type="submit" value="Add Person"/>
+			<input type="submit" value="Add Borrower"/>
 		</div>
 	}
 }

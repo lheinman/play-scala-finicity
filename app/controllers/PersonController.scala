@@ -81,7 +81,7 @@ class PersonController @Inject()(
           report = null,
           reportTime = null).map { _ =>
           // If successful, we simply redirect to the index page.
-          Redirect(routes.PersonController.index).flashing("success" -> "user.created")
+          Redirect(routes.PersonController.index).flashing(values = "success" -> "user.created")
         }
       }
     )
