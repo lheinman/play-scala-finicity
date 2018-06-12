@@ -54,12 +54,14 @@ class ReportService @Inject() (
         if (response.status == 200) {
           Json.parse(response.body).validate[Reports].map{
             case reports => {
-              reports.reports.map(report => {
+              val reps = reports.reports.map(report => {
                 if (!Await.result(pRepo.isBorrowerByReport(report.id), Duration.Inf)) {
                   Await.result(pRepo.patchReport(customer, report.id, report.createdDate), Duration.Inf)
                   Some(report)
                 } else None
-              }).head
+              })
+              if (reps.size > 0) reps.head
+              else None
             }
           }.getOrElse(None)
         } else {
