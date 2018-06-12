@@ -91,16 +91,20 @@ class ConsumerService @Inject() (
     request.get().map {
       response => {
         if (response.status == 200) {
-          Json.parse(response.body).validate[Customers].map{
+          val json = Json.parse(response.body).validate[Customers].map{
             case customers => {
-              customers.customers.foreach(customer => {
-                val consumer = Await.result(patchConsumerByCustomer(customer.id), Duration.Inf)
-                if (consumer != None && !Await.result(pRepo.isBorrowerByConsumer(consumer.get.id), Duration.Inf)) {
-                  Await.result(pRepo.patchConsumer(customer.id, consumer.get.id, consumer.get.createdDate), Duration.Inf)
+              customers.customers.map(customer => {
+                val out = Await.result(patchConsumerByCustomer(customer.id), Duration.Inf) match {
+                  case Some(consumer) => {
+                    consumer.id
+                  }
+                  case None => "No consumer"
                 }
-              }).toString
+                out
+              }).toString()
             }
           }.getOrElse("Json.parse error")
+          json
         } else {
           Logger.debug(message = s"${response.status}: ${response.body}")
           s"${response.status}: ${response.body}"
