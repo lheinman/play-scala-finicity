@@ -87,6 +87,7 @@ class ConsumerService @Inject() (
       .addHttpHeaders(hdrs = "Finicity-App-Key" -> sys.env("FINICITY_APP_KEY"))
       .addHttpHeaders(hdrs = "Finicity-App-Token" -> Await.result(tService.getToken, Duration.Inf))
       .addHttpHeaders(hdrs = "Accept" -> "application/json")
+      .addQueryStringParameters(parameters = "limit" -> "250")
 
     request.get().map {
       response => {
