@@ -291,8 +291,8 @@ class PersonRepository @Inject() (dbConfigProvider: DatabaseConfigProvider)(impl
   /**
     * Patch the borrower with customer ID.
     */
-  def patchConsumer(username: String, consumer: String, time: Long): Future[Int] = db.run {
-    borrowers.filter(_.username === username).map(b => (b.consumer, b.consumerTime)).update(Some(consumer), Some(time))
+  def patchConsumer(customer: String, consumer: String, time: Long): Future[Int] = db.run {
+    borrowers.filter(_.customer === customer).map(b => (b.consumer, b.consumerTime)).update(Some(consumer), Some(time))
   }
 
   /**

@@ -42,7 +42,7 @@ class ConsumerService @Inject() (
       if (response.status == 201) {
         Json.parse(response.body).validate[NewConsumer].map {
           case newConsumer => {
-            pRepo.patchConsumer(borrower.username, newConsumer.id, newConsumer.createdDate)
+            pRepo.patchConsumer(customer, newConsumer.id, newConsumer.createdDate)
             newConsumer.id
           }
         }.getOrElse("Json.parse error")
