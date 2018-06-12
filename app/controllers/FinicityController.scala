@@ -37,10 +37,14 @@ class FinicityController @Inject()(
 
   def postFinicityConnect: Action[AnyContent] = Action.async { implicit request =>
     Future{
-      val borrower = Await.result(pRepo.firstNoReport(), Duration.Inf).get
-      val link = Await.result(finicityService.postFinicityConnect(borrower), Duration.Inf)
-      if (borrower != None) Ok(views.html.connect(link))
-      else Ok("No consumers with unintialized reports")
+      val borrower = Await.result(pRepo.firstNoReport(), Duration.Inf)
+      borrower match {
+        case Some(borrower) => {
+          val link = Await.result(finicityService.postFinicityConnect(borrower), Duration.Inf)
+          Ok(views.html.connect(link))
+        }
+        case None => Ok("No consumers with unintialized reports")
+      }
     }
   }
 
